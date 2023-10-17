@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "303630708516",
+    "project_id": "earndigital-b0297",
+    "storage_bucket": "earndigital-b0297.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:303630708516:android:bab161c4058b2aacb10db1",
+        "android_client_info": {
+          "package_name": "com.myapp.monarch.earndigital"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBcCvttONrGbV7lm_shQoYHwTklECdWCNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

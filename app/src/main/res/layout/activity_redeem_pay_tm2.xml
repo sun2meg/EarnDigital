@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="16dp"
+    tools:context="com.myapp.monarch.earndigital.RedeemPayTm2">
+
+    <ImageView
+        android:id="@+id/imageView12"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="50dp"
+        android:src="@drawable/ic_launcher" />
+
+    <TextView
+        android:id="@+id/Checkout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/backbutton2"
+        android:text="Cash Out Options"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:textColor="@android:color/white"
+        android:textSize="30sp" />
+
+
+    <RadioGroup
+        android:id="@+id/paymentOptions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Checkout"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp"
+
+        android:background="@drawable/backbutton2"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/radioButtonBank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dp"
+            android:paddingEnd="20dp"
+            android:textColor="@android:color/white"
+
+            android:text="Bank Account" />
+
+        <RadioButton
+            android:id="@+id/radioButtonPayPal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="5dp"
+            android:paddingEnd="20dp"
+            android:textColor="@android:color/white"
+            android:text="PayPal" />
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/bankNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/paymentOptions"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/back1now"
+        android:hint="Enter Bank Name"
+        android:paddingStart="5dp"
+        android:paddingEnd="20dp"
+
+        android:inputType="text"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/bankAccountNameEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter Bank Account Name"
+        android:layout_below="@+id/bankNameEditText"
+        android:layout_marginTop="16dp"
+        android:layout_centerHorizontal="true"
+        android:inputType="text"
+        android:visibility="gone"
+        android:background="@drawable/back1now"
+        android:paddingStart="5dp"
+        android:paddingEnd="20dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginStart="24dp" />
+
+    <EditText
+        android:id="@+id/bankAccountNumberEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bankAccountNameEditText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/back1now"
+        android:hint="Enter Bank Account Number"
+        android:paddingStart="5dp"
+        android:paddingEnd="20dp"
+        android:inputType="number"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/emailEditText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/paymentOptions"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:background="@drawable/back1"
+        android:hint="Enter PayPal Email"
+        android:paddingStart="5dp"
+        android:paddingEnd="20dp"
+        android:inputType="textEmailAddress"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/button7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/bankAccountNumberEditText"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="72dp"
+        android:background="@drawable/backreedemkeyboard"
+        android:text="Submit"
+        android:textColor="@android:color/white" />
+
+</RelativeLayout>

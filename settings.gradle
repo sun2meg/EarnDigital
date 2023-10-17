@@ -1,0 +1,2 @@
+rootProject.name = "EarnDigital"
+include ':app', ':luckyWheel'

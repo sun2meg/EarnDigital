@@ -25,6 +25,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Objects;
+
 public class Redeem extends AppCompatActivity {
     private TextView coins2;
     private FirebaseAuth firebaseAuth;
@@ -142,7 +144,8 @@ public class Redeem extends AppCompatActivity {
 //                    coins2.setText(String.valueOf(usercoin));
 //                }
 
-                usercoin = Integer.parseInt(dataSnapshot.getValue(String.class));
+                usercoin = Integer.parseInt(Objects.requireNonNull(dataSnapshot.getValue(String.class)));
+//                usercoin = Integer.parseInt(dataSnapshot.getValue(String.class));
                 coins2.setText(String.valueOf(usercoin));
             }
             @Override

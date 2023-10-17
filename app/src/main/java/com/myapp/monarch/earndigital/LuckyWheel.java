@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.Toast;
-
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
@@ -22,8 +22,12 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.interstitial.InterstitialAd;
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -50,6 +54,7 @@ public class LuckyWheel extends AppCompatActivity {
     private DatabaseReference mRef;
     private int retryAttempt;
     AdRequest adRequest;
+    private InterstitialAd interstitialAd;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,42 +97,45 @@ public class LuckyWheel extends AppCompatActivity {
 //        Toast.makeText(ChoiceSelection.this, mAuth.getCurrentUser().toString(), Toast.LENGTH_SHORT).show();
         String userId = user.getUid();
         mRef =  database.getReference().child("Users").child(userId);
-
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
         adView.loadAd(adRequest);
+       loadInter();
 
 
-
-        MobileAds.initialize(this, "ca-app-pub-6799639509419386~6349245996");
 //        MobileAds.initialize(this, "ca-app-pub-3940256099942544~3347511713"); // google id
         adView.loadAd(adRequest);
-        mInterstitialAd = new InterstitialAd(this);
-        mInterstitialAd.setAdUnitId("ca-app-pub-6799639509419386/5164156835");
+//        mInterstitialAd = new InterstitialAd(this);
+//        mInterstitialAd.setAdUnitId("ca-app-pub-6799639509419386/5164156835");
 //        mInterstitialAd.setAdUnitId("ca-app-pub-3940256099942544/1033173712"); //google unit id
-        mInterstitialAd.loadAd(new AdRequest.Builder().build());
-        mInterstitialAd.setAdListener(new AdListener() {
-            @Override
-            public void onAdLoaded() {}
-            @Override
-            public void onAdFailedToLoad(int errorCode) {}
-            @Override
-            public void onAdOpened() {
-                final SharedPreferences coins = getSharedPreferences("Rewards", MODE_PRIVATE);
-
-                Toast.makeText(getApplicationContext(), String.valueOf("+ " + coin +" Coins"), Toast.LENGTH_SHORT).show();
-                int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-                coinCount = coinCount + (coin);
-                SharedPreferences.Editor coinsEdit = coins.edit();
-                coinsEdit.putString("Coins", String.valueOf(coinCount));
-                coinsEdit.apply();
-                mRef.child("Coins").setValue(coinCount);
-            }
-            @Override
-            public void onAdClicked() {}
-            @Override
-            public void onAdLeftApplication() {}
-            @Override
-            public void onAdClosed() {}
-        });
+//        mInterstitialAd.loadAd(new AdRequest.Builder().build());
+//        mInterstitialAd.setAdListener(new AdListener() {
+//            @Override
+//            public void onAdLoaded() {}
+//            @Override
+//            public void onAdFailedToLoad(int errorCode) {}
+//            @Override
+//            public void onAdOpened() {
+//                final SharedPreferences coins = getSharedPreferences("Rewards", MODE_PRIVATE);
+//
+//                Toast.makeText(getApplicationContext(), String.valueOf("+ " + coin +" Coins"), Toast.LENGTH_SHORT).show();
+//                int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
+//                coinCount = coinCount + (coin);
+//                SharedPreferences.Editor coinsEdit = coins.edit();
+//                coinsEdit.putString("Coins", String.valueOf(coinCount));
+//                coinsEdit.apply();
+//                mRef.child("Coins").setValue(coinCount);
+//            }
+//            @Override
+//            public void onAdClicked() {}
+//            @Override
+//            public void onAdLeftApplication() {}
+//            @Override
+//            public void onAdClosed() {}
+//        });
 
         ImageView imageView = findViewById(R.id.imageView11);
         imageView.setOnClickListener(new View.OnClickListener() {
@@ -196,7 +204,7 @@ public class LuckyWheel extends AppCompatActivity {
         findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mInterstitialAd.loadAd(new AdRequest.Builder().build());
+                loadInter();
                     int index = getRandomIndex();
                     luckyWheelView.startLuckyWheelWithTargetIndex(index);
                     SharedPreferences.Editor spins = spinChecks.edit();
@@ -229,17 +237,47 @@ public class LuckyWheel extends AppCompatActivity {
 
                 findViewById(R.id.play).setEnabled(true);
                 findViewById(R.id.play).setAlpha(1f);
-
-                if (mInterstitialAd.isLoaded()) {
-                    mInterstitialAd.show();
-                } else {
-                    Log.d("TAG", "The interstitial wasn't loaded yet. switching ad");
-
-                }
+              showInterstitialAd();
+//                if (mInterstitialAd.isLoaded()) {
+//                    mInterstitialAd.show();
+//                } else {
+//                    Log.d("TAG", "The interstitial wasn't loaded yet. switching ad");
+//
+//                }
 
             }
         });
     }
+    private void loadInter() {
+//        InterstitialAd.load(this, "ca-app-pub-5836526993277102/4593647902", adRequest, new InterstitialAdLoadCallback() {
+//        InterstitialAd.load(this,    "ca-app-pub-3940256099942544/1033173712", adRequest, new InterstitialAdLoadCallback() {
+        InterstitialAd.load(this, "ca-app-pub-5836526993277102/4593647902", adRequest, new InterstitialAdLoadCallback() {
+            @Override
+            public void onAdLoaded(@NonNull InterstitialAd ad) {
+                interstitialAd = ad;
+                Toast.makeText(LuckyWheel.this, "Loaded", Toast.LENGTH_LONG).show();
+                showInterstitialAd();
+//                showAdBtn.setEnabled(true);
+                // You can now show the ad when it's loaded
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                interstitialAd = null;
+                Toast.makeText(LuckyWheel.this, loadAdError.getMessage(), Toast.LENGTH_LONG).show();
+//                showAdBtn.setEnabled(false);
+//                showInter();
+            }
+        });
+    }
+
+    private void showInterstitialAd() {
+        if (interstitialAd != null) {
+            interstitialAd.show(LuckyWheel.this);
+        }
+    }
+
+
     private int getRandomIndex() {
         int[] ind = new int[] {1,2,3,4,5,6,7,8};
         int rand = new Random().nextInt(ind.length);

@@ -1,5 +1,8 @@
 package com.myapp.monarch.earndigital;
 
+import static android.content.ContentValues.TAG;
+
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -12,26 +15,35 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.FullScreenContentCallback;
+import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
-import com.google.android.gms.ads.reward.RewardItem;
-import com.google.android.gms.ads.reward.RewardedVideoAd;
-import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+import com.google.android.gms.ads.OnUserEarnedRewardListener;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 
 import java.util.Calendar;
 
-public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdListener {
+public class DailyCheckins extends AppCompatActivity {
 
     private Calendar calendar;
     private int weekday;
     private SharedPreferences coins;
     private Button sun, mon, tue, wed, thu, fri, sat;
     private String todayString;
-    private RewardedVideoAd mRewardedVideoAd;
+
+    private RewardedInterstitialAd rewardedInterstitialAd;
+
     private DatabaseReference mRef;
     private FirebaseAuth mAuth;
 
@@ -39,20 +51,14 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_daily_checkins);
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        loadRewardedInterstitialAd();
 
-        MobileAds.initialize(this, "ca-app-pub-6799639509419386~6349245996");
-        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(this);
-        mRewardedVideoAd.setRewardedVideoAdListener(this);
-        loadRewardedVideoAd();
-
-//        FirebaseDatabase database =  FirebaseDatabase.getInstance();
-//
-//        mAuth = FirebaseAuth.getInstance();
-//        FirebaseUser user =  mAuth.getCurrentUser();
-//        Toast.makeText(DailyCheckins.this, mAuth.getCurrentUser().toString(), Toast.LENGTH_SHORT).show();
-//        String userId = user.getUid();
-//
-//        mRef =  database.getReference().child("Users").child(userId);
+//        loadRewardedVideoAd();
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm.isAcceptingText()) {
             imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
@@ -153,32 +159,23 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
             sat.setTextColor(Color.WHITE);
         }}
     }
-    private void loadRewardedVideoAd() {
-        if (!mRewardedVideoAd.isLoaded()){
-//            mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917", new AdRequest.Builder().build()); //google
-            mRewardedVideoAd.loadAd("ca-app-pub-6799639509419386/2130799386", new AdRequest.Builder().build());
-        }
-    }
+//    private void loadRewardedVideoAd() {
+//        if (!mRewardedVideoAd.isLoaded()){
+////            mRewardedVideoAd.loadAd("ca-app-pub-3940256099942544/5224354917", new AdRequest.Builder().build()); //google
+//            mRewardedVideoAd.loadAd("ca-app-pub-6799639509419386/2130799386", new AdRequest.Builder().build());
+//        }
+//    }
     public void monCheck(View view) {
         SharedPreferences dailyChecks = getSharedPreferences("DAILYCHECKS", 0);
         boolean currentDay = dailyChecks.getBoolean(todayString, false);
         if (!currentDay){
 
-            if(mRewardedVideoAd.isLoaded()){
-                mRewardedVideoAd.show();
+            if(rewardedInterstitialAd != null){
+               showRewardedIntAd();
             }  else {
                 Log.d("TAG", "The mRewardedVideoAd wasn't loaded yet.");
 
             }
-//            Toast.makeText(this, "10 Coins Recieved!", Toast.LENGTH_SHORT).show();
-//            SharedPreferences.Editor daily = dailyChecks.edit();
-//            daily.putBoolean(todayString, true);
-//            daily.apply();
-//            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-//            coinCount = coinCount + 10;
-//            SharedPreferences.Editor coinsEdit = coins.edit();
-//            coinsEdit.putString("Coins", String.valueOf(coinCount));
-//            coinsEdit.apply();
         } else {
             Toast.makeText(this, "Reward already recieved", Toast.LENGTH_SHORT).show();
         }}
@@ -187,22 +184,8 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
         boolean currentDay = dailyChecks.getBoolean(todayString, false);
         if (!currentDay){
 
-            if(mRewardedVideoAd.isLoaded()){
-                mRewardedVideoAd.show();
-            }  else {
-                Log.d("TAG", "The mRewardedVideoAd wasn't loaded yet.");
+            showRewardedIntAd();
 
-            }
-
-//            Toast.makeText(this, "10 Coins Recieved!", Toast.LENGTH_SHORT).show();
-//            SharedPreferences.Editor daily = dailyChecks.edit();
-//            daily.putBoolean(todayString, true);
-//            daily.apply();
-//            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-//            coinCount = coinCount + 10;
-//            SharedPreferences.Editor coinsEdit = coins.edit();
-//            coinsEdit.putString("Coins", String.valueOf(coinCount));
-//            coinsEdit.apply();
           } else {
             Toast.makeText(this, "Reward already recieved", Toast.LENGTH_SHORT).show();
         }}
@@ -211,22 +194,8 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
         boolean currentDay = dailyChecks.getBoolean(todayString, false);
         if (!currentDay){
 
-            if(mRewardedVideoAd.isLoaded()){
-                mRewardedVideoAd.show();
-            }  else {
-                Log.d("TAG", "The mRewardedVideoAd wasn't loaded yet.");
+            showRewardedIntAd();
 
-            }
-
-//            Toast.makeText(this, "20 Coins Recieved!", Toast.LENGTH_SHORT).show();
-//            SharedPreferences.Editor daily = dailyChecks.edit();
-//            daily.putBoolean(todayString, true);
-//            daily.apply();
-//            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-//            coinCount = coinCount + 20;
-//            SharedPreferences.Editor coinsEdit = coins.edit();
-//            coinsEdit.putString("Coins", String.valueOf(coinCount));
-//            coinsEdit.apply();
            } else {
             Toast.makeText(this, "Reward already recieved", Toast.LENGTH_SHORT).show();
         }}
@@ -236,22 +205,8 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
         boolean currentDay = dailyChecks.getBoolean(todayString, false);
         if (!currentDay){
 
-            if(mRewardedVideoAd.isLoaded()){
-                mRewardedVideoAd.show();
-            }  else {
-                Log.d("TAG", "The mRewardedVideoAd wasn't loaded yet.");
+            showRewardedIntAd();
 
-            }
-
-//            Toast.makeText(this, "20 Coins Recieved!", Toast.LENGTH_SHORT).show();
-//            SharedPreferences.Editor daily = dailyChecks.edit();
-//            daily.putBoolean(todayString, true);
-//            daily.apply();
-//            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-//            coinCount = coinCount + 20;
-//            SharedPreferences.Editor coinsEdit = coins.edit();
-//            coinsEdit.putString("Coins", String.valueOf(coinCount));
-//            coinsEdit.apply();
         } else {
             Toast.makeText(this, "Reward already recieved", Toast.LENGTH_SHORT).show();
         }}
@@ -260,22 +215,8 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
         SharedPreferences dailyChecks = getSharedPreferences("DAILYCHECKS", 0);
         boolean currentDay = dailyChecks.getBoolean(todayString, false);
         if (!currentDay){
-            if(mRewardedVideoAd.isLoaded()){
-                mRewardedVideoAd.show();
-            }  else {
-                Log.d("TAG", "The mRewardedVideoAd wasn't loaded yet.");
+            showRewardedIntAd();
 
-            }
-
-//            Toast.makeText(this, "30 Coins Recieved!", Toast.LENGTH_SHORT).show();
-//            SharedPreferences.Editor daily = dailyChecks.edit();
-//            daily.putBoolean(todayString, true);
-//            daily.apply();
-//            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-//            coinCount = coinCount + 30;
-//            SharedPreferences.Editor coinsEdit = coins.edit();
-//            coinsEdit.putString("Coins", String.valueOf(coinCount));
-//            coinsEdit.apply();
           } else {
             Toast.makeText(this, "Reward already recieved", Toast.LENGTH_SHORT).show();
         }}
@@ -284,22 +225,8 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
         SharedPreferences dailyChecks = getSharedPreferences("DAILYCHECKS", 0);
         boolean currentDay = dailyChecks.getBoolean(todayString, false);
         if (!currentDay){
-            if(mRewardedVideoAd.isLoaded()){
-                mRewardedVideoAd.show();
-            }  else {
-                Log.d("TAG", "The mRewardedVideoAd wasn't loaded yet.");
+            showRewardedIntAd();
 
-            }
-
-//            Toast.makeText(this, "30 Coins Recieved!", Toast.LENGTH_SHORT).show();
-//            SharedPreferences.Editor daily = dailyChecks.edit();
-//            daily.putBoolean(todayString, true);
-//            daily.apply();
-//            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-//            coinCount = coinCount + 30;
-//            SharedPreferences.Editor coinsEdit = coins.edit();
-//            coinsEdit.putString("Coins", String.valueOf(coinCount));
-//            coinsEdit.apply();
          }else {
             Toast.makeText(this, "Reward already recieved", Toast.LENGTH_SHORT).show();
         }}
@@ -308,22 +235,8 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
         SharedPreferences dailyChecks = getSharedPreferences("DAILYCHECKS", 0);
         boolean currentDay = dailyChecks.getBoolean(todayString, false);
         if (!currentDay){
-            if(mRewardedVideoAd.isLoaded()){
-                mRewardedVideoAd.show();
-            }  else {
-     Log.d("TAG", "The mRewardedVideoAd wasn't loaded yet.");
+            showRewardedIntAd();
 
-            }
-
-//            Toast.makeText(this, "50 Coins Recieved!", Toast.LENGTH_SHORT).show();
-//            SharedPreferences.Editor daily = dailyChecks.edit();
-//            daily.putBoolean(todayString, true);
-//            daily.apply();
-//            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-//            coinCount = coinCount + 50;
-//            SharedPreferences.Editor coinsEdit = coins.edit();
-//            coinsEdit.putString("Coins", String.valueOf(coinCount));
-//            coinsEdit.apply();
         } else {
             Toast.makeText(this, "Reward already recieved", Toast.LENGTH_SHORT).show();
         }}
@@ -333,45 +246,112 @@ public class DailyCheckins extends AppCompatActivity implements RewardedVideoAdL
         Intent intent = new Intent(this,ChoiceSelection.class);
         startActivity(intent);
     }
-    @Override
-    public void onRewarded(RewardItem reward) {
-        SharedPreferences dailyChecks = getSharedPreferences("DAILYCHECKS", 0);
-        Toast.makeText(this, "50 Coins Recieved!", Toast.LENGTH_SHORT).show();
-        SharedPreferences.Editor daily = dailyChecks.edit();
-        daily.putBoolean(todayString, true);
-        daily.apply();
-        int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-        coinCount = coinCount + 50;
-        SharedPreferences.Editor coinsEdit = coins.edit();
-        coinsEdit.putString("Coins", String.valueOf(coinCount));
-        coinsEdit.apply();
+//    @Override
+//    public void onRewarded(RewardItem reward) {
+//        SharedPreferences dailyChecks = getSharedPreferences("DAILYCHECKS", 0);
+//        Toast.makeText(this, "50 Coins Recieved!", Toast.LENGTH_SHORT).show();
+//        SharedPreferences.Editor daily = dailyChecks.edit();
+//        daily.putBoolean(todayString, true);
+//        daily.apply();
+//        int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
+//        coinCount = coinCount + 50;
+//        SharedPreferences.Editor coinsEdit = coins.edit();
+//        coinsEdit.putString("Coins", String.valueOf(coinCount));
+//        coinsEdit.apply();
+//    }
+
+    public void loadRewardedInterstitialAd(){
+        RewardedInterstitialAd.load(DailyCheckins.this, "ca-app-pub-5836526993277102/1225248532",
+                new AdRequest.Builder().build(), new RewardedInterstitialAdLoadCallback() {
+                    @Override
+                    public void onAdLoaded(RewardedInterstitialAd ad) {
+                        rewardedInterstitialAd = ad;
+                        rewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                            @Override
+                            public void onAdClicked() {
+                                // Called when a click is recorded for an ad.
+                                Log.d(TAG, "Ad was clicked.");
+                            }
+
+                            @Override
+                            public void onAdDismissedFullScreenContent() {
+                                // Called when ad is dismissed.
+                                // Set the ad reference to null so you don't show the ad a second time.
+                                Log.d(TAG, "Ad dismissed fullscreen content.");
+                                rewardedInterstitialAd = null;
+                            }
+
+                            @Override
+                            public void onAdFailedToShowFullScreenContent(AdError adError) {
+                                // Called when ad fails to show.
+                                Log.e(TAG, "Ad failed to show fullscreen content.");
+                                rewardedInterstitialAd = null;
+                            }
+
+                            @Override
+                            public void onAdImpression() {
+                                // Called when an impression is recorded for an ad.
+                                Log.d(TAG, "Ad recorded an impression.");
+                            }
+
+                            @Override
+                            public void onAdShowedFullScreenContent() {
+                                // Called when ad is shown.
+                                loadRewardedInterstitialAd();
+                                Log.d(TAG, "Ad showed fullscreen content.");
+                            }
+                        });
+                    }
+                    @Override
+                    public void onAdFailedToLoad(LoadAdError loadAdError) {
+                        Log.d(TAG, loadAdError.toString());
+//                        rewardedInterstitialAd = null;
+                        Toast.makeText (DailyCheckins.this, loadAdError.getMessage(), Toast.LENGTH_LONG).show();
+                        loadRewardedInterstitialAd();
+
+                    }
+                });
+//        showRewardedIntAd();
     }
 
-    @Override
-    public void onRewardedVideoAdLeftApplication() {}
-    @Override
-    public void onRewardedVideoAdClosed() {
-        loadRewardedVideoAd();
-    }
-    @Override
-    public void onRewardedVideoAdFailedToLoad(int errorCode) {}
-    @Override
-    public void onRewardedVideoAdLoaded() {}
-    @Override
-    public void onRewardedVideoAdOpened() {}
-    @Override
-    public void onRewardedVideoStarted() {}
-    @Override
-    public void onRewardedVideoCompleted() {
+    private void showRewardedIntAd() {
 
-        int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
-        coinCount = coinCount + 50;
-        SharedPreferences.Editor coinsEdit = coins.edit();
-        coinsEdit.putString("Coins", String.valueOf(coinCount));
-        coinsEdit.apply();
+        if (rewardedInterstitialAd != null) {
+            Activity activityContext = DailyCheckins.this;
+            rewardedInterstitialAd.show(
+                    activityContext,
+                    new OnUserEarnedRewardListener() {
+                        @Override
+                        public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                            SharedPreferences dailyChecks = getSharedPreferences("DAILYCHECKS", 0);
+                            Toast.makeText(DailyCheckins.this, "50 Coins Recieved!", Toast.LENGTH_SHORT).show();
+                            SharedPreferences.Editor daily = dailyChecks.edit();
+                            daily.putBoolean(todayString, true);
+                            daily.apply();
+                            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
+                            coinCount = coinCount + 50;
+                            SharedPreferences.Editor coinsEdit = coins.edit();
+                            coinsEdit.putString("Coins", String.valueOf(coinCount));
+                            coinsEdit.apply();
+
+//                            int coinCount = Integer.parseInt(coins.getString("Coins", "0"));
+//                            coinCount = coinCount + 50;
+//                            SharedPreferences.Editor coinsEdit = coins.edit();
+//                            coinsEdit.putString("Coins", String.valueOf(coinCount));
+//                            coinsEdit.apply();
 
 //        mRef.child("Coins").setValue(coinCount);
-        Toast.makeText(DailyCheckins.this, "50 coins received", Toast.LENGTH_SHORT).show();
-        loadRewardedVideoAd();
+//                            Toast.makeText(DailyCheckins.this, "50 coins received", Toast.LENGTH_SHORT).show();
+                         loadRewardedInterstitialAd();
+
+//                            int rewardAmount = rewardItem.getAmount();
+//                            Toast.makeText(getApplicationContext(), String.valueOf(rewardAmount), Toast.LENGTH_SHORT).show();
+                            // Handle the reward.
+                            Log.d(TAG, "The user earned the reward.");
+//                      loadRewardedInterstitialAd();//continous ads
+                        }
+                    });
+        }
     }
+
 }

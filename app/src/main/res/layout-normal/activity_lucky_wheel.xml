@@ -107,7 +107,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         ads:adSize="BANNER"
-        ads:adUnitId="ca-app-pub-6799639509419386/4724624390"
+        ads:adUnitId="ca-app-pub-5836526993277102/3883201463"
         app:layout_constraintTop_toBottomOf="@+id/play"
 
         app:layout_constraintEnd_toEndOf="parent"

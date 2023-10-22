@@ -25,8 +25,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Objects;
-
 public class Redeem extends AppCompatActivity {
     private TextView coins2;
     private FirebaseAuth firebaseAuth;
@@ -137,16 +135,21 @@ public class Redeem extends AppCompatActivity {
         mRef.child("Coins").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists() && dataSnapshot.getValue() != null) {
+                    try {
+                        usercoin = Integer.parseInt(dataSnapshot.getValue().toString());
+                        coins2.setText(String.valueOf(usercoin));
+                        // Now you can safely use 'intValue' as an integer.
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getApplicationContext(), String.valueOf(e), Toast.LENGTH_SHORT).show();
+                        // Handle the case where the value is not a valid integer.
+                    }
+                }else {
+                    Toast.makeText(getApplicationContext(), "No Coin yet", Toast.LENGTH_SHORT).show();
+                }
 
-//                Integer coinsValue = dataSnapshot.getValue(Integer.class);
-//                if (coinsValue != null) {
-//                    usercoin = coinsValue;
-//                    coins2.setText(String.valueOf(usercoin));
-//                }
-
-                usercoin = Integer.parseInt(Objects.requireNonNull(dataSnapshot.getValue(String.class)));
 //                usercoin = Integer.parseInt(dataSnapshot.getValue(String.class));
-                coins2.setText(String.valueOf(usercoin));
+//                coins2.setText(String.valueOf(usercoin));
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}

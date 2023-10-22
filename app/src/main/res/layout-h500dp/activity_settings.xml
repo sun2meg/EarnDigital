@@ -56,7 +56,6 @@
             android:layout_alignParentTop="true"
             android:layout_centerInParent="true"
             android:layout_marginTop="25dp"
-            android:background="@drawable/coinbakground"
             android:padding="23dp"
             app:srcCompat="@drawable/settingsicon" />
 

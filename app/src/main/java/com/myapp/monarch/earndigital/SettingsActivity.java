@@ -19,6 +19,7 @@ import android.widget.ImageView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.android.installreferrer.BuildConfig;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -167,22 +168,31 @@ public class SettingsActivity extends AppCompatActivity {
                 int imgResource = R.drawable.contacticonactivate;
                 b5.setCompoundDrawablesWithIntrinsicBounds(imgResource, 0, 0, 0);
                 b5.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.backgroundColor));
-                final Handler h = new Handler();
-                h.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
 
-                        FirebaseAuth.getInstance().signOut();
- // Start a new activity on the UI thread
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        startActivity(new Intent(getApplicationContext(), AgreeActivity.class));
-                    }
-                });
-//                        startActivity( new Intent(getApplicationContext(), AgreeActivity.class));
-                    }
-                }, 130);
+                FirebaseAuth.getInstance().signOut();
+                // After signing out, you can navigate the user to the login or main activity.
+                Intent intent = new Intent(SettingsActivity.this, EmailPasswordActivity.class);
+                startActivity(intent);
+                finish();
+
+//                FirebaseAuth.getInstance().signOut();
+//                 startActivity(new Intent(getApplicationContext(), AgreeActivity.class));
+
+//                final Handler h = new Handler();
+//                h.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        FirebaseAuth.getInstance().signOut();
+//                        finish();
+// // Start a new activity on the UI thread
+////                runOnUiThread(new Runnable() {
+////                    @Override
+////                    public void run() {
+////                        startActivity(new Intent(getApplicationContext(), AgreeActivity.class));
+////                    }
+////                });
+//                    }
+//                }, 130);
             }
         });
 

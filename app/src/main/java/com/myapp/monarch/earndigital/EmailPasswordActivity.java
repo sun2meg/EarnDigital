@@ -59,6 +59,8 @@ private EditText frgtPswd;
         database =  FirebaseDatabase.getInstance();
         mAuth = FirebaseAuth.getInstance();
 
+
+
         initializeUI();
 
 
@@ -118,6 +120,38 @@ private EditText frgtPswd;
     }
 
 
+//    private void registerNewUser() {
+//        if (!validateForm()) {
+//            return;
+//        }
+//        showProgressDialog();
+//        mAuth.createUserWithEmailAndPassword(mEdtEmail.getText().toString(), mEdtPassword.getText().toString())
+//                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<AuthResult> task) {
+//                        if (task.isSuccessful()) {
+//                            mTextViewProfile.setTextColor(Color.DKGRAY);
+//
+//                            FirebaseUser user1 = mAuth.getCurrentUser();
+//                            String userId = user1.getUid();
+//                            usercoin = 0;
+//                            myRef = database.getReference().child("Users").child(userId);
+//                            myRef.child("Coins").setValue(usercoin);
+//
+//                            coinsEdit = coins.edit();
+//                            coinsEdit.putString("Coins", String.valueOf(usercoin));
+//                            coinsEdit.apply();
+//
+//                            updateUI(user1);
+//                        } else {
+//                            mTextViewProfile.setTextColor(Color.RED);
+//                            mTextViewProfile.setText(task.getException().getMessage());
+//                        }
+//                        hideProgressDialog();
+//                    }
+//                });
+//    }
+
     private void registerNewUser() {
             if (!validateForm()) {
                 return;
@@ -138,6 +172,7 @@ private EditText frgtPswd;
                                 myRef =  database.getReference().child("Users").child(userId);
                                 myRef.child("Users").child(user1.getUid()).child("Coins").setValue(usercoin);
 
+                                Toast.makeText(getApplicationContext(), "Successful Registration!", Toast.LENGTH_SHORT).show();
                                 coinsEdit = coins.edit();
                                 coinsEdit.putString("Coins", String.valueOf(usercoin));
                                 coinsEdit.apply();
@@ -194,29 +229,7 @@ private EditText frgtPswd;
 //                    FirebaseUser user = mAuth.getCurrentUser();
                     ////////////////////////////////////////////
                     FirebaseUser user = mAuth.getCurrentUser();
-//                    // Increment user's coin value by 10 on successful login
-//                    mDatabase.child("Users").child(user.getUid()).child("Coins").addListenerForSingleValueEvent(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-////                            usercoins = Integer.parseInt(dataSnapshot.getValue(String.class));
-//                            usercoin = dataSnapshot.getValue(Integer.class);
-//
-//                            mDatabase.child("Users").child(user.getUid()).child("Coins").setValue(usercoin);
-//                            // Display user's coin value with Toast message
-//                            Toast.makeText(getApplicationContext(), "Your coins: " + usercoin, Toast.LENGTH_SHORT).show();
-//                            // Save user's coin value to SharedPreferences
-//
-//                    coinsEdit = coins.edit();
-//                    coinsEdit.putString("Coins", String.valueOf(usercoin));
-//                    coinsEdit.apply();
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//                                Toast.makeText(getApplicationContext(), String.valueOf(databaseError), Toast.LENGTH_SHORT).show();
-//                                // Handle errors here
-//                            }
-//                        });
+
                      updateUI(user);
                 }
                 hideProgressDialog();
@@ -239,37 +252,28 @@ private EditText frgtPswd;
         }
     }
 
-
-
-
-//String.valueOf(usercoin)
     private void updateUI(FirebaseUser user) {
-        DatabaseReference mDatabase = database.getReference();
         if (user != null) {
-//
-        FirebaseDatabase database =  FirebaseDatabase.getInstance();
-        mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user1 =  mAuth.getCurrentUser();
             String userId = user.getUid();
-//        String userId = user1.getUid();
-//        String userId = user1.getEmail();
-        myRef =  database.getReference().child("Users").child(userId);
-          myRef.child("Coins").addListenerForSingleValueEvent(new ValueEventListener() {
-
+            myRef = database.getReference().child("Users").child(userId);
+            myRef.child("Coins").addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()) {
-                        usercoin = Integer.parseInt(dataSnapshot.getValue(String.class));
-//
+                    if (dataSnapshot.exists() && dataSnapshot.getValue() != null) {
+                    try {
+                        usercoin = Integer.parseInt(dataSnapshot.getValue().toString());
+                        // Now you can safely use 'intValue' as an integer.
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(getApplicationContext(), String.valueOf(e), Toast.LENGTH_SHORT).show();
+                        // Handle the case where the value is not a valid integer.
+                    }
+//                    if (dataSnapshot.exists()) {
+//                        usercoin = Integer.parseInt(dataSnapshot.getValue(String.class));
+////                        usercoin = dataSnapshot.getValue(Integer.class);
                     } else {
                         Toast.makeText(getApplicationContext(), "No Coin yet", Toast.LENGTH_SHORT).show();
-
-                        // If the coins node does not exist in the database, create it with an initial value of 0
-//                        usercoin = 0;
-//                        mDatabase.child("Users").child(user.getUid()).child("Coins").setValue(usercoin);
                     }
-////
-                    // Save user's coin value to SharedPreferences
+
                     coinsEdit = coins.edit();
                     coinsEdit.putString("Coins", String.valueOf(usercoin));
                     coinsEdit.apply();
@@ -277,22 +281,70 @@ private EditText frgtPswd;
 
                 @Override
                 public void onCancelled(DatabaseError databaseError) {
-                    // Handle errors hereString.valueOf(usercoin)
                     Toast.makeText(getApplicationContext(), String.valueOf(databaseError), Toast.LENGTH_SHORT).show();
                 }
             });
 
-
-////////////////////////////////////////////////////////////////////////////////
-            Bundle bundle = new Bundle();
             Intent intent = new Intent(getApplicationContext(), ChoiceSelection.class);
-//            Intent intent = new Intent(getApplicationContext(), ExampleActivity.class);
-            intent.putExtras(bundle);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
             finish();
         }
     }
+
+
+
+//String.valueOf(usercoin)
+//    private void updateUI(FirebaseUser user) {
+//        DatabaseReference mDatabase = database.getReference();
+//        if (user != null) {
+////
+//        FirebaseDatabase database =  FirebaseDatabase.getInstance();
+//        mAuth = FirebaseAuth.getInstance();
+//        FirebaseUser user1 =  mAuth.getCurrentUser();
+//            String userId = user.getUid();
+////        String userId = user1.getUid();
+////        String userId = user1.getEmail();
+//        myRef =  database.getReference().child("Users").child(userId);
+//          myRef.child("Coins").addListenerForSingleValueEvent(new ValueEventListener() {
+//
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                    if (dataSnapshot.exists()) {
+//                        usercoin = Integer.parseInt(dataSnapshot.getValue(String.class));
+////
+//                    } else {
+//                        Toast.makeText(getApplicationContext(), "No Coin yet", Toast.LENGTH_SHORT).show();
+//
+//                        // If the coins node does not exist in the database, create it with an initial value of 0
+////                        usercoin = 0;
+////                        mDatabase.child("Users").child(user.getUid()).child("Coins").setValue(usercoin);
+//                    }
+//////
+//                    // Save user's coin value to SharedPreferences
+//                    coinsEdit = coins.edit();
+//                    coinsEdit.putString("Coins", String.valueOf(usercoin));
+//                    coinsEdit.apply();
+//                }
+//
+//                @Override
+//                public void onCancelled(DatabaseError databaseError) {
+//                    // Handle errors hereString.valueOf(usercoin)
+//                    Toast.makeText(getApplicationContext(), String.valueOf(databaseError), Toast.LENGTH_SHORT).show();
+//                }
+//            });
+//
+//
+//////////////////////////////////////////////////////////////////////////////////
+//            Bundle bundle = new Bundle();
+//            Intent intent = new Intent(getApplicationContext(), ChoiceSelection.class);
+////            Intent intent = new Intent(getApplicationContext(), ExampleActivity.class);
+//            intent.putExtras(bundle);
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            startActivity(intent);
+//            finish();
+//        }
+//    }
 
 
 
